@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  # FastAPI Backend
+  backend:
+    build: .
+    container_name: gymlink-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://gymlink:gymlink_secret@postgres:5432/gymlink_db
+      - JWT_SECRET_KEY=production-secret-change-this-use-openssl-rand-hex-32
+      - JWT_REFRESH_SECRET_KEY=production-refresh-secret-change-this-too
+      - QR_SECRET_KEY=production-qr-secret-change-this
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:5174
+      - DEBUG=false
+      - ADMIN_EMAIL=admin@gmail.com
+      - ADMIN_PASSWORD=Admin@123
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: gymlink-postgres
+    environment:
+      POSTGRES_USER: gymlink
+      POSTGRES_PASSWORD: gymlink_secret
+      POSTGRES_DB: gymlink_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gymlink -d gymlink_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  pgdata:

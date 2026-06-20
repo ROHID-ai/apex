@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-apex-surface text-apex-body antialiased font-sans;
+    background-image:
+      radial-gradient(circle at 0% 0%, rgba(45, 62, 255, 0.06), transparent 40%),
+      radial-gradient(circle at 100% 20%, rgba(45, 62, 255, 0.04), transparent 35%);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-apex-heading;
+  }
+
+  ::selection {
+    background: rgba(45, 62, 255, 0.18);
+    color: #0F172A;
+  }
+}
+
+@layer components {
+  .apex-card {
+    @apply rounded-card border border-apex-border bg-white shadow-card transition-all duration-300;
+  }
+
+  .apex-card-hover {
+    @apply apex-card hover:border-apex-primary/20 hover:shadow-card-hover;
+  }
+
+  .apex-label {
+    @apply text-sm font-medium text-apex-body;
+  }
+
+  .apex-input {
+    @apply w-full rounded-btn border border-apex-border bg-white px-4 py-2.5 text-sm text-apex-heading placeholder:text-apex-muted focus:border-apex-primary focus:outline-none focus:ring-2 focus:ring-apex-primary/15 transition-all;
+  }
+
+  .apex-table-wrap {
+    @apply apex-card overflow-hidden;
+  }
+
+  .apex-table {
+    @apply w-full text-sm;
+  }
+
+  .apex-table thead {
+    @apply sticky top-0 z-10 bg-apex-surface/95 backdrop-blur-sm;
+  }
+
+  .apex-table thead th {
+    @apply border-b border-apex-border px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-apex-body;
+  }
+
+  .apex-table tbody tr {
+    @apply border-b border-apex-border/70 transition-colors hover:bg-apex-primary-light/40;
+  }
+
+  .apex-table tbody td {
+    @apply px-5 py-4 text-apex-heading;
+  }
+
+  .click-effect {
+    @apply transition-all duration-200 ease-out active:scale-[0.98] active:opacity-90;
+  }
+
+  .pro-button {
+    @apply click-effect inline-flex items-center justify-center gap-2 rounded-btn bg-gradient-to-r from-apex-primary to-[#4F5DFF] px-5 py-2.5 text-sm font-semibold text-white shadow-btn transition-all hover:-translate-y-0.5 hover:from-[#2432CC] hover:to-apex-primary hover:shadow-btn-hover disabled:pointer-events-none disabled:opacity-60;
+  }
+
+  .pro-button-secondary {
+    @apply click-effect inline-flex items-center justify-center gap-2 rounded-btn border border-apex-border bg-white px-5 py-2.5 text-sm font-semibold text-apex-heading transition-all hover:border-apex-primary/30 hover:bg-apex-primary-light;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-slate-300 hover:bg-apex-primary/40;
+}
