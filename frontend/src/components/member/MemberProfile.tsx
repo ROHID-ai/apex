@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Loader2, Mail, Phone, UserRound } from 'lucide-react';
 import { motion } from 'framer-motion';
+import MemberPageIntro from './MemberPageIntro';
+import { memberCard, memberPage } from './memberStyles';
 import { memberApi } from '../../api/member';
 
 interface Profile {
@@ -43,16 +45,16 @@ export default function MemberProfile() {
   ];
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">My Profile</h1>
-        <p className="text-apex-body mt-1">Your account information and membership identity.</p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={memberPage}>
+      <MemberPageIntro description="Your account information and membership identity." />
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
         {details.map((detail) => (
-          <div key={detail.label} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl">
-            <div className="flex items-center gap-3 mb-4"><detail.icon className="w-5 h-5 text-apex-primary" /><h2 className="text-lg font-bold text-slate-900">{detail.label}</h2></div>
-            <p className="text-apex-body">{detail.value}</p>
+          <div key={detail.label} className={memberCard}>
+            <div className="mb-3 flex items-center gap-2">
+              <detail.icon className="h-4 w-4 text-apex-primary" />
+              <h2 className="text-sm font-semibold text-apex-heading">{detail.label}</h2>
+            </div>
+            <p className="text-sm text-apex-body sm:text-base">{detail.value}</p>
           </div>
         ))}
       </div>

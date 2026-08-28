@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Bell, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import MemberPageIntro from './MemberPageIntro';
+import { memberCard, memberCardTitle, memberPage } from './memberStyles';
 import { memberApi } from '../../api/member';
 
 interface NotificationItem {
@@ -28,20 +30,20 @@ export default function MemberNotifications() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">Notifications</h1>
-        <p className="text-apex-body mt-1">Updates, reminders, and messages for your membership.</p>
-      </div>
-      <div className="space-y-4">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={memberPage}>
+      <MemberPageIntro description="Updates, reminders, and messages for your membership." />
+      <div className="space-y-3">
         {items.length === 0 ? (
-          <div className="bg-white border border-slate-200 rounded-3xl p-8 text-apex-body">No notifications available.</div>
+          <div className={`${memberCard} text-sm text-apex-body`}>No notifications available.</div>
         ) : (
           items.map((item) => (
-            <div key={item.id} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl">
-              <div className="flex items-center gap-3 mb-3"><Bell className="w-5 h-5 text-apex-primary" /><h2 className="text-lg font-bold text-slate-900">{item.title}</h2></div>
-              <p className="text-apex-body mb-4">{item.message}</p>
-              <div className="flex items-center justify-between text-xs text-apex-body uppercase tracking-wider">
+            <div key={item.id} className={memberCard}>
+              <div className="mb-2 flex items-center gap-2">
+                <Bell className="h-4 w-4 text-apex-primary" />
+                <h2 className={memberCardTitle}>{item.title}</h2>
+              </div>
+              <p className="mb-3 text-sm text-apex-body">{item.message}</p>
+              <div className="flex items-center justify-between text-[11px] uppercase tracking-wide text-apex-muted">
                 <span>{item.platform}</span>
                 <span>{new Date(item.created_at).toLocaleString()}</span>
               </div>

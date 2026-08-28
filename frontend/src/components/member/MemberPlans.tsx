@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Dumbbell, Utensils, Activity, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import MemberPageIntro from './MemberPageIntro';
+import { memberCard, memberPage } from './memberStyles';
 import { memberApi } from '../../api/member';
 
 interface Workout {
@@ -46,12 +48,9 @@ export default function MemberPlans({ mode }: MemberPlansProps) {
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">{mode === 'workout' ? 'My Workout Plan' : 'My Diet Plan'}</h1>
-        <p className="text-apex-body mt-1">Recommended plans available for your membership.</p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={memberPage}>
+      <MemberPageIntro description="Recommended plans available for your membership." />
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
         {items.map((item, index) => {
           const isWorkout = mode === 'workout';
           return (
@@ -60,7 +59,7 @@ export default function MemberPlans({ mode }: MemberPlansProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.08 }}
-              className="bg-white border border-slate-200 rounded-3xl p-6 relative overflow-hidden"
+              className={`${memberCard} relative overflow-hidden`}
             >
               <div className={`absolute top-0 right-0 w-32 h-32 ${isWorkout ? 'bg-apex-primary/5' : 'bg-apex-primary/5'} blur-[40px] rounded-full -mr-16 -mt-16`} />
               <div className="flex justify-between items-start mb-4">

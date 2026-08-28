@@ -51,7 +51,7 @@ export default function AdminLayout({
         <GeometricDecor variant="minimal" className="opacity-60" />
         <div className="relative mb-4 flex items-center justify-between border-b border-apex-border px-4 pb-5 pt-2">
           <button type="button" className="min-w-0 flex-1 text-left" onClick={() => onNavigate('dashboard')}>
-            <Logo size="sidebar" className="max-w-[11.5rem]" />
+            <Logo size="sidebar" className="max-w-[9.5rem]" />
           </button>
           <button
             type="button"
@@ -117,27 +117,23 @@ export default function AdminLayout({
       <main className="flex min-h-screen flex-1 flex-col lg:ml-[17.5rem] xl:ml-72">
         <header
           className={cn(
-            'sticky top-0 z-30 flex h-[4.5rem] items-center justify-between gap-4 border-b px-4 transition-all sm:px-8',
-            scrolled ? 'border-apex-border bg-white/95 shadow-sm backdrop-blur-md' : 'border-transparent bg-transparent',
+            'sticky top-0 z-30 flex h-14 items-center justify-between gap-2 border-b px-3 transition-all sm:h-[4.5rem] sm:gap-4 sm:px-8',
+            scrolled ? 'border-apex-border bg-white/95 shadow-sm backdrop-blur-md' : 'border-apex-border/80 bg-white/90 backdrop-blur-sm lg:border-transparent lg:bg-transparent',
           )}
         >
-          <div className="flex min-w-0 items-center gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
-              className="rounded-btn border border-apex-border bg-white p-2 text-apex-body shadow-sm hover:text-apex-heading lg:hidden"
+              className="shrink-0 rounded-btn border border-apex-border bg-white p-2 text-apex-body shadow-sm hover:text-apex-heading lg:hidden"
+              aria-label="Open menu"
             >
               <Menu className="h-5 w-5" />
             </button>
-            <div className="min-w-0">
-              <div className="mb-1 lg:hidden">
-                <Logo size="header" className="max-w-[9.5rem]" />
-              </div>
-              <h1 className="truncate text-lg font-bold text-apex-heading sm:text-xl">{pageLabel}</h1>
-            </div>
+            <h1 className="truncate text-base font-semibold text-apex-heading sm:text-xl lg:font-bold">{pageLabel}</h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
             <div className="relative hidden md:block">
               <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-apex-muted" />
               <input
@@ -150,12 +146,12 @@ export default function AdminLayout({
               type="button"
               onClick={() => onNavigate('notifications')}
               aria-label="Open notifications"
-              className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-btn border border-apex-border bg-white text-apex-body shadow-sm transition-all hover:border-apex-primary/25 hover:bg-apex-primary-light hover:text-apex-primary"
+              className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-btn border border-apex-border bg-white text-apex-body shadow-sm transition-all hover:border-apex-primary/25 hover:bg-apex-primary-light hover:text-apex-primary sm:h-10 sm:w-10"
             >
-              <Bell className="h-[18px] w-[18px]" strokeWidth={2} />
-              <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-apex-primary ring-2 ring-white" />
+              <Bell className="h-[17px] w-[17px] sm:h-[18px] sm:w-[18px]" strokeWidth={2} />
+              <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-apex-primary ring-2 ring-white sm:right-2.5 sm:top-2.5 sm:h-2 sm:w-2" />
             </button>
-            <div className="flex items-center gap-3 border-l border-apex-border pl-3">
+            <div className="flex items-center gap-2 sm:gap-3 sm:border-l sm:border-apex-border sm:pl-3">
               <AccountAvatar name={user.name} />
               <div className="hidden min-w-0 md:block">
                 <p className="truncate text-sm font-semibold text-apex-heading">{user.name}</p>
@@ -167,7 +163,7 @@ export default function AdminLayout({
           </div>
         </header>
 
-        <div key={currentPage} className="mx-auto w-full max-w-7xl flex-1 animate-fade-in-up px-4 py-6 sm:px-8 sm:py-8">
+        <div key={currentPage} className="mx-auto w-full max-w-7xl flex-1 animate-fade-in-up px-3 py-4 sm:px-8 sm:py-8">
           {children}
         </div>
       </main>

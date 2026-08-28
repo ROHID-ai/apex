@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Loader2, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { memberApi } from '../../api/member';
+import MemberPageIntro from './MemberPageIntro';
+import { memberCard, memberPage } from './memberStyles';
 
 export default function ChangePassword() {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -44,13 +46,10 @@ export default function ChangePassword() {
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">Change Password</h1>
-        <p className="text-apex-body mt-1">Keep your account secure with a strong password.</p>
-      </div>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={memberPage}>
+      <MemberPageIntro description="Keep your account secure with a strong password." />
 
-      <form onSubmit={submit} className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4 max-w-2xl">
+      <form onSubmit={submit} className={`${memberCard} mx-auto max-w-2xl space-y-4`}>
         {error ? <div className="text-sm text-blue-500 bg-apex-primary/10 border border-apex-primary/30 rounded-xl px-4 py-3">{error}</div> : null}
         {message ? <div className="text-sm text-blue-400 bg-apex-primary/10 border border-apex-primary/30 rounded-xl px-4 py-3">{message}</div> : null}
 

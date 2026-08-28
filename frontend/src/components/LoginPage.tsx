@@ -10,10 +10,8 @@ import {
   Eye,
   EyeOff,
   ShieldCheck,
-  LineChart,
   CircleDot,
   Activity,
-  Clock3,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Logo from './Logo';
@@ -180,39 +178,17 @@ export default function LoginPage({ onLogin, isDark, toggleTheme }: LoginPagePro
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-slate-200 bg-white/80 p-3.5">
-                <p className="text-[11px] uppercase tracking-[0.14em] text-apex-body">System Uptime</p>
-                <p className="mt-1 text-lg font-semibold text-slate-900">99.9%</p>
-              </div>
-              <div className="rounded-xl border border-slate-200 bg-white/80 p-3.5">
-                <p className="text-[11px] uppercase tracking-[0.14em] text-apex-body">Active Members</p>
-                <p className="mt-1 text-lg font-semibold text-slate-900">1,284</p>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white/80 p-4">
-              <div className="mb-4 flex items-center justify-between">
-                <p className="text-xs font-medium text-apex-body">Weekly Operations Snapshot</p>
-                <LineChart className="h-4 w-4 text-blue-400" />
-              </div>
-              <div className="space-y-3">
-                {[
-                  { day: 'Mon', value: 68 },
-                  { day: 'Tue', value: 72 },
-                  { day: 'Wed', value: 76 },
-                  { day: 'Thu', value: 74 },
-                  { day: 'Fri', value: 81 },
-                ].map((item) => (
-                  <div key={item.day} className="grid grid-cols-[32px_1fr_36px] items-center gap-3">
-                    <span className="text-xs text-apex-body">{item.day}</span>
-                    <div className="h-1.5 rounded-full bg-slate-100">
-                      <div className="h-1.5 rounded-full bg-gradient-to-r from-apex-primary/70 to-blue-400/70" style={{ width: `${item.value}%` }} />
-                    </div>
-                    <span className="text-right text-xs text-apex-body">{item.value}%</span>
-                  </div>
-                ))}
-              </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {[
+                { label: 'Attendance', detail: 'QR check-in and live tracking' },
+                { label: 'Memberships', detail: 'Plans, renewals, and payments' },
+                { label: 'Analytics', detail: 'Reports from your live data' },
+              ].map((item) => (
+                <div key={item.label} className="rounded-xl border border-slate-200 bg-white/80 p-3.5">
+                  <p className="text-[11px] uppercase tracking-[0.14em] text-apex-body">{item.label}</p>
+                  <p className="mt-1 text-sm font-medium text-slate-900">{item.detail}</p>
+                </div>
+              ))}
             </div>
           </div>
         </motion.section>
@@ -230,14 +206,10 @@ export default function LoginPage({ onLogin, isDark, toggleTheme }: LoginPagePro
               </div>
               <h2 className="mt-3 text-xl font-semibold tracking-tight text-white">Sign in</h2>
               <p className="mt-1 text-sm text-white/80">Access your secure gym management workspace.</p>
-              <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/70">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-white/90">
+              <div className="mt-3">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-xs text-white/90">
                   <ShieldCheck className="h-3.5 w-3.5 text-blue-300" />
                   JWT Protected
-                </span>
-                <span className="inline-flex items-center gap-1.5 text-white/70">
-                  <Clock3 className="h-3.5 w-3.5 text-white/60" />
-                  Last login: Today, 09:42
                 </span>
               </div>
             </div>

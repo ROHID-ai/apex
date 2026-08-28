@@ -3,6 +3,8 @@ import { Loader2, Clock, CheckCircle2, Camera, X, AlertCircle, CheckCircle, Rota
 import { motion, AnimatePresence } from 'framer-motion';
 import Webcam from 'react-webcam';
 import { memberApi } from '../../api/member';
+import MemberPageIntro from './MemberPageIntro';
+import { memberCard, memberCardTitle, memberPage } from './memberStyles';
 
 interface AttendanceRecord {
   id: number;
@@ -214,67 +216,74 @@ export default function MemberAttendance() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={memberPage}>
       <AnimatePresence>
         {toast && (
           <motion.div
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl text-sm font-semibold border shadow-xl ${
+            className={`fixed left-3 right-3 top-16 z-50 rounded-xl border px-4 py-3 text-sm font-medium shadow-lg sm:left-auto sm:right-4 sm:top-4 sm:max-w-sm ${
               toast.type === 'success'
-                ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-200'
-                : 'bg-apex-primary/15 border-apex-primary/30 text-blue-400'
+                ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                : 'border-red-200 bg-red-50 text-red-700'
             }`}
           >
             <div className="flex items-center gap-2">
-              {toast.type === 'success' ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+              {toast.type === 'success' ? <CheckCircle className="h-4 w-4 shrink-0" /> : <AlertCircle className="h-4 w-4 shrink-0" />}
               {toast.message}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white border border-slate-200 rounded-3xl p-6">
-          <div className="flex items-center gap-3 mb-4"><Clock className="w-5 h-5 text-apex-primary" /><h2 className="text-xl font-bold text-slate-900">My Attendance</h2></div>
-          <p className="text-apex-body text-sm">Total visits recorded</p>
-          <p className="text-3xl font-bold text-slate-900 mt-2">{data.total_visits}</p>
+      <MemberPageIntro description="Track visits, check in with camera, or scan the gym QR code." />
+
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        <div className={memberCard}>
+          <div className="mb-2 flex items-center gap-2">
+            <Clock className="h-4 w-4 text-apex-primary" />
+            <h2 className="text-sm font-semibold text-apex-heading">Visits</h2>
+          </div>
+          <p className="text-2xl font-bold text-apex-heading sm:text-3xl">{data.total_visits}</p>
         </div>
-        <div className="bg-white border border-slate-200 rounded-3xl p-6">
-          <div className="flex items-center gap-3 mb-4"><CheckCircle2 className="w-5 h-5 text-apex-primary" /><h2 className="text-xl font-bold text-slate-900">Current Status</h2></div>
-          <p className={`text-lg font-semibold ${data.active_session ? 'text-blue-500' : 'text-apex-body'}`}>
+        <div className={memberCard}>
+          <div className="mb-2 flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-apex-primary" />
+            <h2 className="text-sm font-semibold text-apex-heading">Status</h2>
+          </div>
+          <p className={`text-sm font-semibold sm:text-base ${data.active_session ? 'text-apex-primary' : 'text-apex-body'}`}>
             {data.active_session ? 'Checked In' : 'Not Checked In'}
           </p>
         </div>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-3xl p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className={memberCard}>
+        <div className="space-y-4">
           <div>
-            <h3 className="text-xl font-bold text-slate-900">Camera Attendance</h3>
-            <p className="text-sm text-apex-body mt-1">Use your device camera to mark today&apos;s check-in.</p>
+            <h3 className={memberCardTitle}>Camera Attendance</h3>
+            <p className="mt-1 text-sm text-apex-body">Use your device camera to mark today&apos;s check-in.</p>
           </div>
           <button
             onClick={handleOpenCamera}
             disabled={data.active_session}
-            className="w-full sm:w-auto min-w-[220px] inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-apex-primary to-blue-500 text-white font-bold hover:from-blue-500 hover:to-blue-400 transition-all shadow-lg shadow-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-btn bg-apex-primary px-4 py-3 text-sm font-semibold text-white shadow-btn transition-all hover:bg-[#2432CC] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-w-[200px]"
           >
-            <Camera className="w-5 h-5" />
+            <Camera className="h-4 w-4" />
             Mark Attendance
           </button>
         </div>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-3xl p-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className={memberCard}>
+        <div className="space-y-3">
           <div>
-            <h3 className="text-xl font-bold text-slate-900">QR Express Attendance</h3>
-            <p className="text-sm text-apex-body mt-1">Scan the gym check-in/check-out QR from your phone camera for instant attendance.</p>
+            <h3 className={memberCardTitle}>QR Express Attendance</h3>
+            <p className="mt-1 text-sm text-apex-body">Scan the gym QR from your phone camera for instant check-in.</p>
           </div>
           {qrProcessing && (
-            <div className="inline-flex items-center gap-2 text-sm text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-2">
-              <Loader2 className="w-4 h-4 animate-spin" />
+            <div className="inline-flex items-center gap-2 rounded-btn border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+              <Loader2 className="h-4 w-4 animate-spin" />
               Processing QR...
             </div>
           )}
@@ -283,16 +292,18 @@ export default function MemberAttendance() {
         <AnimatePresence>
           {qrResult && !qrProcessing && (
             <motion.div
-              initial={{ opacity: 0, y: 10, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8, scale: 0.98 }}
-              className="mt-5 rounded-2xl border border-emerald-500/35 bg-emerald-500/10 p-4"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="mt-4 rounded-btn border border-emerald-200 bg-emerald-50 p-3 sm:p-4"
             >
               <div className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-emerald-300 mt-0.5" />
+                <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
                 <div>
-                  <p className="text-emerald-200 font-semibold capitalize">{qrResult.action} successful</p>
-                  <p className="text-emerald-100/90 text-sm mt-1">Status: {qrResult.status.replace('_', ' ')} | Time: {new Date(qrResult.occurred_at).toLocaleString()}</p>
+                  <p className="font-semibold capitalize text-emerald-800">{qrResult.action} successful</p>
+                  <p className="mt-1 text-sm text-emerald-700">
+                    {qrResult.status.replace('_', ' ')} · {new Date(qrResult.occurred_at).toLocaleString()}
+                  </p>
                 </div>
               </div>
             </motion.div>
@@ -300,28 +311,49 @@ export default function MemberAttendance() {
         </AnimatePresence>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-2xl">
-        <div className="p-6 border-b border-slate-200 bg-slate-100">
-          <h3 className="text-xl font-bold text-slate-900">Recent Visits</h3>
+      <div className={`${memberCard} overflow-hidden p-0`}>
+        <div className="border-b border-apex-border px-4 py-3 sm:px-5">
+          <h3 className={memberCardTitle}>Recent Visits</h3>
         </div>
-        <div className="overflow-x-auto">
+
+        <div className="divide-y divide-apex-border md:hidden">
+          {data.recent_visits.length === 0 ? (
+            <p className="px-4 py-6 text-sm text-apex-body">No visits recorded yet.</p>
+          ) : (
+            data.recent_visits.map((record) => (
+              <div key={record.id} className="space-y-2 px-4 py-3">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-medium text-apex-heading">{new Date(record.check_in).toLocaleDateString()}</p>
+                  <span className={`rounded-pill px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${record.check_out ? 'bg-slate-100 text-apex-body' : 'bg-apex-primary-light text-apex-primary'}`}>
+                    {record.check_out ? 'Completed' : 'Active'}
+                  </span>
+                </div>
+                <p className="text-xs text-apex-body">In: {new Date(record.check_in).toLocaleTimeString()}</p>
+                <p className="text-xs text-apex-body">Out: {record.check_out ? new Date(record.check_out).toLocaleTimeString() : '—'}</p>
+                <p className="text-xs text-apex-body">Duration: {record.duration ? `${record.duration}m` : '—'}</p>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="hidden overflow-x-auto md:block">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-slate-100 border-b border-slate-200">
-                <th className="px-6 py-4 text-xs font-bold text-apex-body uppercase tracking-wider">Check In</th>
-                <th className="px-6 py-4 text-xs font-bold text-apex-body uppercase tracking-wider">Check Out</th>
-                <th className="px-6 py-4 text-xs font-bold text-apex-body uppercase tracking-wider">Duration</th>
-                <th className="px-6 py-4 text-xs font-bold text-apex-body uppercase tracking-wider">Status</th>
+              <tr className="border-b border-apex-border bg-apex-surface">
+                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-apex-body">Check In</th>
+                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-apex-body">Check Out</th>
+                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-apex-body">Duration</th>
+                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-apex-body">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-apex-border">
               {data.recent_visits.map((record) => (
-                <tr key={record.id} className="hover:bg-slate-100 transition-colors">
-                  <td className="px-6 py-4 text-apex-body text-sm">{new Date(record.check_in).toLocaleString()}</td>
-                  <td className="px-6 py-4 text-apex-body text-sm">{record.check_out ? new Date(record.check_out).toLocaleString() : '--'}</td>
-                  <td className="px-6 py-4 text-apex-body text-sm">{record.duration ? `${record.duration}m` : '--'}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${record.check_out ? 'bg-slate-100 text-apex-body' : 'bg-apex-primary/20 text-blue-500'}`}>
+                <tr key={record.id} className="hover:bg-apex-surface/60">
+                  <td className="px-5 py-3 text-sm text-apex-body">{new Date(record.check_in).toLocaleString()}</td>
+                  <td className="px-5 py-3 text-sm text-apex-body">{record.check_out ? new Date(record.check_out).toLocaleString() : '—'}</td>
+                  <td className="px-5 py-3 text-sm text-apex-body">{record.duration ? `${record.duration}m` : '—'}</td>
+                  <td className="px-5 py-3">
+                    <span className={`rounded-pill px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${record.check_out ? 'bg-slate-100 text-apex-body' : 'bg-apex-primary-light text-apex-primary'}`}>
                       {record.check_out ? 'Completed' : 'Active'}
                     </span>
                   </td>

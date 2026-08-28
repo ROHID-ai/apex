@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Activity, Bell, CalendarCheck, ShieldCheck, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { memberApi } from '../../api/member';
+import MemberPageIntro from './MemberPageIntro';
+import { memberCard, memberPage, memberStatGrid } from './memberStyles';
 
 interface DashboardData {
   total_visits: number;
@@ -31,8 +33,8 @@ export default function MemberDashboard() {
 
   if (loading || !data) {
     return (
-      <div className="flex items-center justify-center h-[60vh]">
-        <Loader2 className="w-10 h-10 text-apex-primary animate-spin" />
+      <div className="flex h-[50vh] items-center justify-center">
+        <Loader2 className="h-9 w-9 animate-spin text-apex-primary" />
       </div>
     );
   }
@@ -40,32 +42,29 @@ export default function MemberDashboard() {
   const cards = [
     { label: 'Total Visits', value: data.total_visits, icon: CalendarCheck },
     { label: 'Current Plan', value: data.current_plan || 'Unassigned', icon: Activity },
-    { label: 'Membership Status', value: data.membership_status, icon: ShieldCheck },
+    { label: 'Membership', value: data.membership_status, icon: ShieldCheck },
     { label: 'Notifications', value: data.notification_count, icon: Bell },
   ];
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">Member Dashboard</h1>
-        <p className="text-apex-body mt-1">Your attendance, plans, and membership details in one place.</p>
-      </div>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={memberPage}>
+      <MemberPageIntro description="Your attendance, plans, and membership details in one place." />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div className={memberStatGrid}>
         {cards.map((card, index) => (
           <motion.div
             key={card.label}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.08 }}
-            className="bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl"
+            transition={{ delay: index * 0.05 }}
+            className={memberCard}
           >
-            <div className="flex items-center justify-between mb-4">
-              <card.icon className="w-6 h-6 text-apex-primary" />
-              <span className="text-[10px] uppercase tracking-widest text-apex-body">Live</span>
+            <div className="mb-3 flex items-center justify-between">
+              <card.icon className="h-5 w-5 text-apex-primary" />
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-apex-muted">Live</span>
             </div>
-            <p className="text-apex-body text-sm">{card.label}</p>
-            <p className="text-2xl font-bold text-slate-900 mt-2">{card.value}</p>
+            <p className="text-xs text-apex-body sm:text-sm">{card.label}</p>
+            <p className="mt-1 truncate text-xl font-bold capitalize text-apex-heading sm:text-2xl">{card.value}</p>
           </motion.div>
         ))}
       </div>

@@ -4,12 +4,12 @@ type LogoProps = {
 };
 
 const logoHeights: Record<NonNullable<LogoProps['size']>, string> = {
-  header: 'h-8',
-  sidebar: 'h-14',
-  sm: 'h-12',
-  md: 'h-14',
-  lg: 'h-16',
-  xl: 'h-20 sm:h-24',
+  header: 'h-7',
+  sidebar: 'h-11',
+  sm: 'h-10',
+  md: 'h-12',
+  lg: 'h-14',
+  xl: 'h-16 sm:h-20',
 };
 
 const Logo = ({ className = '', size = 'md' }: LogoProps) => (
