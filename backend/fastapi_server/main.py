@@ -17,7 +17,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import func, inspect, or_, text
 from sqlalchemy.orm import Session
 
-from database import Base, SessionLocal, engine
+from database import Base, SessionLocal, DB_BACKEND, engine, migration_engine
 from models import Attendance, AttendanceQRConfig, DietPlan, Membership, Notification, Payment, User, Workout
 
 JWT_SECRET = os.getenv("JWT_SECRET", "change-this-secret-in-production")
@@ -772,7 +772,7 @@ def get_uploads_root() -> Path:
 
 
 def ensure_attendance_schema() -> None:
-    inspector = inspect(engine)
+    inspector = inspect(migration_engine)
     try:
         columns = {col["name"] for col in inspector.get_columns("attendance")}
     except Exception:
@@ -796,7 +796,7 @@ def ensure_attendance_schema() -> None:
     if "face_verification_confidence" not in columns:
         alter_statements.append("ALTER TABLE attendance ADD COLUMN face_verification_confidence DOUBLE PRECISION")
 
-    with engine.begin() as conn:
+    with migration_engine.begin() as conn:
         for stmt in alter_statements:
             conn.execute(text(stmt))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_attendance_member_date ON attendance (member_id, attendance_date)"))
@@ -807,7 +807,7 @@ def ensure_attendance_qr_schema(db: Session) -> None:
 
 
 def ensure_user_schema() -> None:
-    inspector = inspect(engine)
+    inspector = inspect(migration_engine)
     try:
         columns = {col["name"] for col in inspector.get_columns("users")}
     except Exception:
@@ -827,13 +827,13 @@ def ensure_user_schema() -> None:
     if "trainer_assigned" not in columns:
         alter_statements.append("ALTER TABLE users ADD COLUMN trainer_assigned VARCHAR")
 
-    with engine.begin() as conn:
+    with migration_engine.begin() as conn:
         for stmt in alter_statements:
             conn.execute(text(stmt))
 
 
 def ensure_workout_schema() -> None:
-    inspector = inspect(engine)
+    inspector = inspect(migration_engine)
     try:
         columns = {col["name"] for col in inspector.get_columns("workouts")}
     except Exception:
@@ -869,7 +869,7 @@ def ensure_workout_schema() -> None:
     if "created_at" not in columns:
         alter_statements.append("ALTER TABLE workouts ADD COLUMN created_at TIMESTAMP")
 
-    with engine.begin() as conn:
+    with migration_engine.begin() as conn:
         for stmt in alter_statements:
             conn.execute(text(stmt))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_workouts_member_id ON workouts (member_id)"))
@@ -877,7 +877,7 @@ def ensure_workout_schema() -> None:
 
 
 def ensure_diet_schema() -> None:
-    inspector = inspect(engine)
+    inspector = inspect(migration_engine)
     try:
         columns = {col["name"] for col in inspector.get_columns("diet_plans")}
     except Exception:
@@ -913,7 +913,7 @@ def ensure_diet_schema() -> None:
     if "created_at" not in columns:
         alter_statements.append("ALTER TABLE diet_plans ADD COLUMN created_at TIMESTAMP")
 
-    with engine.begin() as conn:
+    with migration_engine.begin() as conn:
         for stmt in alter_statements:
             conn.execute(text(stmt))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_diet_plans_member_id ON diet_plans (member_id)"))
@@ -921,13 +921,13 @@ def ensure_diet_schema() -> None:
 
 
 def ensure_membership_schema() -> None:
-    inspector = inspect(engine)
+    inspector = inspect(migration_engine)
     try:
         has_table = "memberships" in inspector.get_table_names()
     except Exception:
         return
 
-    with engine.begin() as conn:
+    with migration_engine.begin() as conn:
         if not has_table:
             conn.execute(
                 text(
@@ -1184,12 +1184,20 @@ def seed_database(db: Session) -> None:
 
 @app.on_event("startup")
 def startup_event() -> None:
-    logger.info("Starting API and checking database connection")
-    with engine.connect() as conn:
-        conn.execute(text("SELECT 1"))
+    logger.info("Starting API and checking database connection (%s)", DB_BACKEND)
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+    except Exception as exc:
+        logger.error(
+            "Database connection failed. For Supabase, set the correct DB_PASSWORD in "
+            "fastapi_server/.env (Supabase -> Project Settings -> Database). "
+            "Temporary local fallback: USE_LOCAL_DB=true"
+        )
+        raise exc
     logger.info("Database connection established")
 
-    Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=migration_engine)
     ensure_user_schema()
     ensure_attendance_schema()
     ensure_workout_schema()
