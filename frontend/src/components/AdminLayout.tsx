@@ -49,9 +49,9 @@ export default function AdminLayout({
         )}
       >
         <GeometricDecor variant="minimal" className="opacity-60" />
-        <div className="relative mb-4 flex items-center justify-between border-b border-apex-border px-4 pb-4 pt-1">
+        <div className="relative mb-4 flex items-center justify-between border-b border-apex-border px-4 pb-5 pt-2">
           <button type="button" className="min-w-0 flex-1 text-left" onClick={() => onNavigate('dashboard')}>
-            <Logo size="sidebar" />
+            <Logo size="sidebar" className="max-w-[11.5rem]" />
           </button>
           <button
             type="button"
@@ -130,7 +130,9 @@ export default function AdminLayout({
               <Menu className="h-5 w-5" />
             </button>
             <div className="min-w-0">
-              <p className="text-xs font-semibold tracking-wide text-apex-muted">apex</p>
+              <div className="mb-1 lg:hidden">
+                <Logo size="header" className="max-w-[9.5rem]" />
+              </div>
               <h1 className="truncate text-lg font-bold text-apex-heading sm:text-xl">{pageLabel}</h1>
             </div>
           </div>

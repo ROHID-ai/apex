@@ -27,6 +27,7 @@ export interface DashboardMetrics {
   newRegistrations: number;
   expiringMemberships: number;
   attendanceTrend: { label: string; value: number }[];
+  attendanceHeatmap: { date: string; count: number }[];
   recentActivity: ActivityItem[];
   loading: boolean;
 }
@@ -62,6 +63,7 @@ export function useDashboardData() {
     newRegistrations: 0,
     expiringMemberships: 0,
     attendanceTrend: [],
+    attendanceHeatmap: [],
     recentActivity: [],
     loading: true,
   });
@@ -142,6 +144,29 @@ export function useDashboardData() {
           value,
         }));
 
+        const heatmapStart = new Date(startOfDay);
+        heatmapStart.setDate(heatmapStart.getDate() - 364);
+        const heatmapMap = new Map<string, number>();
+        for (let d = new Date(heatmapStart); d <= startOfDay; d.setDate(d.getDate() + 1)) {
+          const y = d.getFullYear();
+          const mo = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          heatmapMap.set(`${y}-${mo}-${day}`, 0);
+        }
+        logs.forEach((log) => {
+          const d = new Date(log.check_in);
+          if (Number.isNaN(d.getTime()) || d < heatmapStart) return;
+          const y = d.getFullYear();
+          const mo = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          const key = `${y}-${mo}-${day}`;
+          if (heatmapMap.has(key)) heatmapMap.set(key, (heatmapMap.get(key) || 0) + 1);
+        });
+        const attendanceHeatmap = Array.from(heatmapMap.entries()).map(([date, count]) => ({
+          date,
+          count,
+        }));
+
         const weekCheckIns = logs.filter((log) => new Date(log.check_in) >= startOfWeek).length;
         const weeklyDenominator = Math.max(stats.active_members * 7, 1);
         const weeklyAttendancePct = Math.min(100, Math.round((weekCheckIns / weeklyDenominator) * 100));
@@ -210,6 +235,7 @@ export function useDashboardData() {
           newRegistrations,
           expiringMemberships,
           attendanceTrend,
+          attendanceHeatmap,
           recentActivity: activity,
           loading: false,
         });

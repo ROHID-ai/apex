@@ -17,6 +17,7 @@ import {
 import KpiCard from './ui/KpiCard';
 import Card from './ui/Card';
 import SectionHeader from './ui/SectionHeader';
+import AttendanceHeatmap from './ui/AttendanceHeatmap';
 import { useDashboardData } from '../hooks/useDashboardData';
 
 interface DashboardProps {
@@ -67,21 +68,9 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
       {/* Row 2 — Trend + Activity */}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-10">
-        <Card className="xl:col-span-7" title="Attendance Trend" description="Daily check-ins · last 7 days">
-          <div className="flex h-44 items-end gap-2 rounded-btn border border-apex-border bg-apex-surface px-3 pb-3 pt-4">
-            {m.attendanceTrend.map((point) => {
-              const max = Math.max(...m.attendanceTrend.map((p) => p.value), 1);
-              return (
-                <div key={point.label} className="flex flex-1 flex-col items-center justify-end gap-2">
-                  <span className="text-[11px] font-semibold text-apex-heading">{point.value}</span>
-                  <div
-                    className="w-full max-w-[36px] rounded-t-md bg-gradient-to-t from-apex-primary to-[#6B76FF]"
-                    style={{ height: `${Math.max((point.value / max) * 100, 6)}%` }}
-                  />
-                  <span className="text-[11px] font-medium text-apex-body">{point.label}</span>
-                </div>
-              );
-            })}
+        <Card className="xl:col-span-7" title="Attendance Trend" description="Daily check-ins · last 12 months">
+          <div className="rounded-btn border border-apex-border bg-apex-surface px-3 py-3">
+            <AttendanceHeatmap days={m.attendanceHeatmap} />
           </div>
         </Card>
 
