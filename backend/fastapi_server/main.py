@@ -1020,26 +1020,15 @@ def build_member_attendance_response(user: User, db: Session) -> MemberAttendanc
     )
 
 
-def seed_database(db: Session) -> None:
+def migrate_database(db: Session) -> None:
     now = datetime.utcnow()
-    admin = db.query(User).filter(User.email == "admin@gym.com").first()
-    if not admin:
-        admin = User(
-            name="Admin",
-            email="admin@gym.com",
-            role="admin",
-            phone="",
-            age=None,
-            membership_type="Admin",
-            created_at=now,
-            plan="",
-            status="active",
-            join_date=now,
-            membership_id="ADMIN-0001",
-        )
-        set_password(admin, "admin123")
-        db.add(admin)
-        logger.info("Seeded default admin user: admin@gym.com")
+
+    seed_workout_titles = {"Weight Loss Basic", "Muscle Gain Pro", "Starter Strength Plan"}
+    seed_diet_titles = {"Keto Starter", "High Protein Bulk", "Balanced High Protein"}
+    removed_workouts = db.query(Workout).filter(Workout.title.in_(seed_workout_titles)).delete(synchronize_session=False)
+    removed_diets = db.query(DietPlan).filter(DietPlan.title.in_(seed_diet_titles)).delete(synchronize_session=False)
+    if removed_workouts or removed_diets:
+        logger.info("Removed seeded mock plans: workouts=%s diets=%s", removed_workouts, removed_diets)
 
     # Backfill new auth/profile columns for legacy users.
     users = db.query(User).all()
@@ -1064,60 +1053,6 @@ def seed_database(db: Session) -> None:
         if user.role == "member" and not user.membership_type:
             user.membership_type = user.plan or "Basic"
 
-    if db.query(Workout).count() == 0:
-        db.add_all(
-            [
-                Workout(
-                    title="Weight Loss Basic",
-                    workout_name="Weight Loss Basic",
-                    category="Fat Loss",
-                    level="Beginner",
-                    difficulty="Beginner",
-                    assignment_scope="all",
-                    user_count=45,
-                    is_active=True,
-                    created_at=now,
-                ),
-                Workout(
-                    title="Muscle Gain Pro",
-                    workout_name="Muscle Gain Pro",
-                    category="Bodybuilding",
-                    level="Advanced",
-                    difficulty="Advanced",
-                    assignment_scope="all",
-                    user_count=32,
-                    is_active=True,
-                    created_at=now,
-                ),
-            ]
-        )
-        logger.info("Seeded default workout plans")
-
-    if db.query(DietPlan).count() == 0:
-        db.add_all(
-            [
-                DietPlan(
-                    title="Keto Starter",
-                    meal_plan="Keto Starter",
-                    calories="1800 kcal",
-                    assignment_scope="all",
-                    user_count=28,
-                    is_active=True,
-                    created_at=now,
-                ),
-                DietPlan(
-                    title="High Protein Bulk",
-                    meal_plan="High Protein Bulk",
-                    calories="3200 kcal",
-                    assignment_scope="all",
-                    user_count=35,
-                    is_active=True,
-                    created_at=now,
-                ),
-            ]
-        )
-        logger.info("Seeded default diet plans")
-
     members = db.query(User).filter(User.role == "member").all()
     for member in members:
         membership = db.query(Membership).filter(Membership.member_id == member.id).first()
@@ -1129,53 +1064,6 @@ def seed_database(db: Session) -> None:
                     start_date=start_date,
                     end_date=start_date + timedelta(days=30),
                     payment_status="paid" if member.status == "active" else "pending",
-                )
-            )
-
-        member_workout = db.query(Workout).filter(Workout.member_id == member.id).first()
-        if not member_workout:
-            db.add(
-                Workout(
-                    member_id=member.id,
-                    source_template_id=None,
-                    workout_name="Starter Strength Plan",
-                    trainer="Assigned Trainer",
-                    schedule="Mon/Wed/Fri - 7:00 AM",
-                    admin_notes="Focus on form and progressive overload.",
-                    duration_weeks=8,
-                    difficulty="Beginner",
-                    assignment_scope="specific",
-                    assignment_targets=dumps_json_list([member.id]),
-                    assignment_groups=dumps_json_list([]),
-                    is_active=True,
-                    created_at=now,
-                    title="Starter Strength Plan",
-                    category="General Fitness",
-                    level="Beginner",
-                    user_count=1,
-                )
-            )
-
-        member_diet = db.query(DietPlan).filter(DietPlan.member_id == member.id).first()
-        if not member_diet:
-            db.add(
-                DietPlan(
-                    member_id=member.id,
-                    source_template_id=None,
-                    meal_plan="Balanced High Protein",
-                    calories="2200 kcal",
-                    notes="Personalized starter diet based on onboarding details.",
-                    admin_notes="Hydration target: 3L/day.",
-                    duration_weeks=8,
-                    difficulty="Beginner",
-                    macros="Protein 35% / Carbs 40% / Fat 25%",
-                    assignment_scope="specific",
-                    assignment_targets=dumps_json_list([member.id]),
-                    assignment_groups=dumps_json_list([]),
-                    is_active=True,
-                    created_at=now,
-                    title="Balanced High Protein",
-                    user_count=1,
                 )
             )
 
@@ -1206,7 +1094,7 @@ def startup_event() -> None:
     get_uploads_root().mkdir(parents=True, exist_ok=True)
     db = SessionLocal()
     try:
-        seed_database(db)
+        migrate_database(db)
         ensure_attendance_qr_schema(db)
         users_total = db.query(User).count()
         admins_total = db.query(User).filter(User.role == "admin").count()
@@ -1403,29 +1291,6 @@ def create_member(payload: MemberCreate, _: User = Depends(get_current_admin), d
             start_date=now,
             end_date=now + timedelta(days=30),
             payment_status="paid" if member.status == "active" else "pending",
-        )
-    )
-
-    db.add(
-        Workout(
-            member_id=member.id,
-            workout_name="Starter Strength Plan",
-            trainer="Assigned Trainer",
-            schedule="Mon/Wed/Fri - 7:00 AM",
-            title="Starter Strength Plan",
-            category="General Fitness",
-            level="Beginner",
-            user_count=1,
-        )
-    )
-    db.add(
-        DietPlan(
-            member_id=member.id,
-            meal_plan="Balanced High Protein",
-            calories="2200 kcal",
-            notes="Personalized starter diet based on onboarding details.",
-            title="Balanced High Protein",
-            user_count=1,
         )
     )
 
