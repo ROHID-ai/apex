@@ -213,7 +213,7 @@ export default function AttendanceHeatmap({ days }: AttendanceHeatmapProps) {
                         key={toDateKey(cell.date)}
                         role="img"
                         aria-label={`${formatDateLabel(cell.date)}: ${cell.count} members logged in`}
-                        className="h-[11px] w-[11px] cursor-pointer rounded-[2px] transition-transform hover:scale-125 hover:ring-1 hover:ring-apex-heading/30"
+                        className="h-[11px] w-[11px] cursor-pointer rounded-[2px] transition-all duration-200 ease-smooth hover:scale-125 hover:ring-1 hover:ring-apex-heading/30"
                         style={{ backgroundColor: LEVEL_COLORS[level] }}
                         onMouseEnter={(e) => showTooltip(e.clientX, e.clientY, cell.date, cell.count)}
                         onMouseMove={(e) => showTooltip(e.clientX, e.clientY, cell.date, cell.count)}

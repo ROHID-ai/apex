@@ -19,7 +19,7 @@ export default function Button({
   return (
     <button
       className={cn(
-        'click-effect inline-flex items-center justify-center gap-2 rounded-btn text-sm font-semibold transition-all disabled:pointer-events-none disabled:opacity-60',
+        'click-effect inline-flex items-center justify-center gap-2 rounded-btn text-sm font-semibold transition-all duration-200 ease-smooth disabled:pointer-events-none disabled:opacity-60',
         variant === 'primary' &&
           'bg-gradient-to-r from-apex-primary to-[#4F5DFF] px-5 py-2.5 text-white shadow-btn hover:-translate-y-0.5 hover:shadow-btn-hover',
         variant === 'secondary' &&

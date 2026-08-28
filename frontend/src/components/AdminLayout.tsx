@@ -4,6 +4,7 @@ import Logo from './Logo';
 import AccountAvatar from './ui/AccountAvatar';
 import type { User } from '../store/useAuthStore';
 import { cn } from '../lib/cn';
+import { smoothScrollToTop } from '../lib/smoothScroll';
 import GeometricDecor from './ui/GeometricDecor';
 
 interface MenuItem {
@@ -34,9 +35,13 @@ export default function AdminLayout({
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 8);
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    smoothScrollToTop();
+  }, [currentPage]);
 
   const pageLabel = menuItems.find((item) => item.id === currentPage)?.label || 'Overview';
 
@@ -44,25 +49,25 @@ export default function AdminLayout({
     <div className="flex min-h-screen w-full overflow-x-hidden bg-apex-surface font-sans">
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 flex w-[17.5rem] flex-col border-r border-apex-border bg-white py-4 transition-transform duration-300 xl:w-72',
+          'fixed inset-y-0 left-0 z-50 flex w-[17.5rem] flex-col border-r border-apex-border bg-white py-4 transition-transform duration-300 ease-smooth xl:w-72',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
         )}
       >
         <GeometricDecor variant="minimal" className="opacity-60" />
         <div className="relative mb-4 flex items-center justify-between border-b border-apex-border px-4 pb-5 pt-2">
-          <button type="button" className="min-w-0 flex-1 text-left" onClick={() => onNavigate('dashboard')}>
+          <button type="button" className="click-effect min-w-0 flex-1 text-left" onClick={() => onNavigate('dashboard')}>
             <Logo size="sidebar" className="max-w-[9.5rem]" />
           </button>
           <button
             type="button"
             onClick={() => setSidebarOpen(false)}
-            className="rounded-btn p-2 text-apex-body hover:bg-apex-primary-light hover:text-apex-heading lg:hidden"
+            className="click-effect rounded-btn p-2 text-apex-body hover:bg-apex-primary-light hover:text-apex-heading lg:hidden"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <nav className="relative flex-1 space-y-1 overflow-y-auto px-3">
+        <nav className="smooth-scroll relative flex-1 space-y-1 overflow-y-auto px-3">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentPage === item.id;
@@ -109,7 +114,7 @@ export default function AdminLayout({
         <button
           type="button"
           aria-label="Close sidebar"
-          className="fixed inset-0 z-40 bg-apex-heading/20 backdrop-blur-[2px] lg:hidden"
+          className="fixed inset-0 z-40 animate-fade-in bg-apex-heading/20 backdrop-blur-[2px] transition-opacity duration-300 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -117,7 +122,7 @@ export default function AdminLayout({
       <main className="flex min-h-screen flex-1 flex-col lg:ml-[17.5rem] xl:ml-72">
         <header
           className={cn(
-            'sticky top-0 z-30 flex h-14 items-center justify-between gap-2 border-b px-3 transition-all sm:h-[4.5rem] sm:gap-4 sm:px-8',
+            'sticky top-0 z-30 flex h-14 items-center justify-between gap-2 border-b px-3 transition-all duration-300 ease-smooth sm:h-[4.5rem] sm:gap-4 sm:px-8',
             scrolled ? 'border-apex-border bg-white/95 shadow-sm backdrop-blur-md' : 'border-apex-border/80 bg-white/90 backdrop-blur-sm lg:border-transparent lg:bg-transparent',
           )}
         >
@@ -125,7 +130,7 @@ export default function AdminLayout({
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
-              className="shrink-0 rounded-btn border border-apex-border bg-white p-2 text-apex-body shadow-sm hover:text-apex-heading lg:hidden"
+              className="click-effect shrink-0 rounded-btn border border-apex-border bg-white p-2 text-apex-body shadow-sm hover:text-apex-heading lg:hidden"
               aria-label="Open menu"
             >
               <Menu className="h-5 w-5" />
@@ -146,7 +151,7 @@ export default function AdminLayout({
               type="button"
               onClick={() => onNavigate('notifications')}
               aria-label="Open notifications"
-              className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-btn border border-apex-border bg-white text-apex-body shadow-sm transition-all hover:border-apex-primary/25 hover:bg-apex-primary-light hover:text-apex-primary sm:h-10 sm:w-10"
+              className="click-effect relative flex h-9 w-9 shrink-0 items-center justify-center rounded-btn border border-apex-border bg-white text-apex-body shadow-sm transition-all duration-200 ease-smooth hover:border-apex-primary/25 hover:bg-apex-primary-light hover:text-apex-primary sm:h-10 sm:w-10"
             >
               <Bell className="h-[17px] w-[17px] sm:h-[18px] sm:w-[18px]" strokeWidth={2} />
               <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-apex-primary ring-2 ring-white sm:right-2.5 sm:top-2.5 sm:h-2 sm:w-2" />
@@ -163,7 +168,7 @@ export default function AdminLayout({
           </div>
         </header>
 
-        <div key={currentPage} className="mx-auto w-full max-w-7xl flex-1 animate-fade-in-up px-3 py-4 sm:px-8 sm:py-8">
+        <div key={currentPage} className="mx-auto w-full max-w-7xl flex-1 animate-fade-in-up px-3 py-4 sm:px-8 sm:py-8 motion-reduce:animate-none">
           {children}
         </div>
       </main>

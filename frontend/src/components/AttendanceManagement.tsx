@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Clock, Calendar, Users, Loader2, ArrowRight, QrCode, RefreshCw, Copy, ExternalLink, CheckCircle } from 'lucide-react';
+import { Clock, Calendar, Users, Loader2, ArrowRight, QrCode, RefreshCw, Copy, ExternalLink, CheckCircle, Download } from 'lucide-react';
+import { downloadQrPosterPdf } from '../utils/qrPoster';
+import QrPosterPreview from './ui/QrPosterPreview';
 import api from '../api';
 import { adminApi, type AttendanceQrConfig, type LiveAttendanceMember } from '../api/admin';
 import PageHero from './ui/PageHero';
@@ -26,6 +28,7 @@ export default function AttendanceManagement() {
   const [liveMembers, setLiveMembers] = useState<LiveAttendanceMember[]>([]);
   const [qrLoading, setQrLoading] = useState(true);
   const [refreshingQr, setRefreshingQr] = useState(false);
+  const [downloadingPoster, setDownloadingPoster] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
 
@@ -73,6 +76,18 @@ export default function AttendanceManagement() {
       alert('QR URL copied');
     } catch {
       alert('Copy failed. Please copy manually.');
+    }
+  };
+
+  const downloadPoster = async (label: string, url: string, type: 'check-in' | 'check-out') => {
+    setDownloadingPoster(label);
+    try {
+      await downloadQrPosterPdf({ type, url });
+    } catch (err) {
+      console.error(err);
+      alert('Unable to generate PDF poster. Please try again.');
+    } finally {
+      setDownloadingPoster(null);
     }
   };
 
@@ -151,7 +166,7 @@ export default function AttendanceManagement() {
           ) : liveMembers.length === 0 ? (
             <EmptyState title="No active check-ins" description="Members will appear here when they scan in." />
           ) : (
-            <div className="max-h-72 space-y-2 overflow-auto">
+            <div className="max-h-72 space-y-2 overflow-auto smooth-scroll">
               {liveMembers.map((member) => (
                 <div key={member.attendance_id} className="flex items-center justify-between rounded-btn border border-apex-border bg-apex-surface px-3 py-2.5">
                   <div>
@@ -193,16 +208,12 @@ export default function AttendanceManagement() {
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {[
-                { label: 'Check-In QR', url: qrConfig.check_in_url },
-                { label: 'Check-Out QR', url: qrConfig.check_out_url },
-              ].map((item) => {
-                const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(item.url)}`;
-                return (
-                  <div key={item.label} className="rounded-btn border border-apex-border bg-apex-surface p-4">
+                { label: 'Check-In QR', url: qrConfig.check_in_url, type: 'check-in' as const },
+                { label: 'Check-Out QR', url: qrConfig.check_out_url, type: 'check-out' as const },
+              ].map((item) => (
+                  <div key={item.label} className="apex-card-hover rounded-btn border border-apex-border bg-apex-surface p-4 transition-all duration-300 ease-smooth">
                     <p className="mb-2 text-sm font-semibold text-apex-heading">{item.label}</p>
-                    <div className="inline-flex rounded-btn border border-apex-border bg-white p-2">
-                      <img src={qrImageUrl} alt={item.label} className="h-36 w-36 object-contain" />
-                    </div>
+                    <QrPosterPreview type={item.type} url={item.url} alt={item.label} />
                     <div className="mt-3 space-y-2">
                       <Button variant="secondary" className="w-full" onClick={() => copyToClipboard(item.url)}>
                         <Copy className="h-4 w-4" /> Copy URL
@@ -211,14 +222,22 @@ export default function AttendanceManagement() {
                         href={item.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex w-full items-center justify-center gap-2 rounded-btn border border-apex-primary/20 bg-apex-primary-light px-3 py-2 text-sm font-semibold text-apex-primary hover:bg-apex-primary/10"
+                        className="click-effect flex w-full items-center justify-center gap-2 rounded-btn border border-apex-primary/20 bg-apex-primary-light px-3 py-2 text-sm font-semibold text-apex-primary transition-all duration-200 ease-smooth hover:bg-apex-primary/10"
                       >
                         <ExternalLink className="h-4 w-4" /> Open Link
                       </a>
+                      <Button
+                        variant="secondary"
+                        className="w-full"
+                        onClick={() => downloadPoster(item.label, item.url, item.type)}
+                        disabled={downloadingPoster === item.label}
+                        loading={downloadingPoster === item.label}
+                      >
+                        <Download className="h-4 w-4" /> Download PDF Poster
+                      </Button>
                     </div>
                   </div>
-                );
-              })}
+              ))}
             </div>
           )}
         </Card>
@@ -230,14 +249,14 @@ export default function AttendanceManagement() {
           <button
             type="button"
             onClick={fetchRecords}
-            className="rounded-btn border border-apex-border p-2 text-apex-body hover:bg-apex-surface hover:text-apex-heading"
+            className="click-effect rounded-btn border border-apex-border p-2 text-apex-body transition-all duration-200 ease-smooth hover:bg-apex-surface hover:text-apex-heading"
             title="Refresh"
           >
             <Clock className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="apex-table-wrap max-h-[min(60vh,520px)] overflow-auto">
+        <div className="apex-table-wrap smooth-scroll max-h-[min(60vh,520px)] overflow-auto">
           <table className="apex-table">
             <thead>
               <tr>

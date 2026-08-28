@@ -16,6 +16,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import api from '../api';
 import PageHero from './ui/PageHero';
 import Button from './ui/Button';
+import SectionHeader from './ui/SectionHeader';
+import { WORKOUT_CATALOG, getWorkoutImageForPlan, findWorkoutCatalogItem, type WorkoutCatalogItem } from '../data/workoutCatalog';
+import WorkoutLibraryCard from './workouts/WorkoutLibraryCard';
+import WorkoutDetailModal from './workouts/WorkoutDetailModal';
+import WorkoutPosterImage from './workouts/WorkoutPosterImage';
 
 type AssignmentScope = 'all' | 'specific' | 'group';
 
@@ -83,6 +88,7 @@ export default function DietWorkoutManager() {
   const [editingDietId, setEditingDietId] = useState<number | null>(null);
   const [toast, setToast] = useState<{ kind: 'success' | 'error'; message: string } | null>(null);
   const [confirmAll, setConfirmAll] = useState(false);
+  const [viewingWorkout, setViewingWorkout] = useState<WorkoutCatalogItem | null>(null);
 
   const [filters, setFilters] = useState({
     status: 'all',
@@ -425,8 +431,31 @@ export default function DietWorkoutManager() {
 
   const groupOptions = ['Basic', 'Premium', 'VIP', 'Elite'];
 
+  const applyCatalogWorkout = (catalogItem: (typeof WORKOUT_CATALOG)[number]) => {
+    setActiveTab('workout');
+    setEditingWorkoutId(null);
+    setWorkoutForm({
+      title: `${catalogItem.title} Training`,
+      category: catalogItem.title,
+      level: catalogItem.level,
+      trainer: '',
+      schedule: catalogItem.duration,
+      admin_notes: catalogItem.description,
+      duration_weeks: '4',
+      difficulty: catalogItem.level,
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setToast({ kind: 'success', message: `${catalogItem.title} workout loaded into the form.` });
+  };
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+      <WorkoutDetailModal
+        workout={viewingWorkout}
+        onClose={() => setViewingWorkout(null)}
+        onUseTemplate={applyCatalogWorkout}
+      />
+
       <PageHero
         badge="Programming"
         title="Diet & Workout Plans"
@@ -676,47 +705,105 @@ export default function DietWorkoutManager() {
       </div>
 
       {loading ? (
-        <div className="py-20 flex justify-center">
-          <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+        <div className="flex justify-center py-20">
+          <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
+        </div>
+      ) : activeTab === 'workout' ? (
+        <div className="space-y-8">
+          <section className="space-y-4">
+            <SectionHeader
+              title="Workout Library"
+              description="Use gym workout templates with images and descriptions. Click a card to pre-fill the create form."
+            />
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {WORKOUT_CATALOG.map((workout, i) => (
+                <motion.div
+                  key={workout.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.04 }}
+                >
+                  <WorkoutLibraryCard workout={workout} compact onView={setViewingWorkout} onSelect={applyCatalogWorkout} />
+                </motion.div>
+              ))}
+            </div>
+          </section>
+
+          <section className="space-y-4">
+            <SectionHeader title="Active Workout Plans" description="Plans created and assigned to members." />
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <AnimatePresence mode="wait">
+                {workouts.length === 0 ? (
+                  <div className="col-span-full rounded-2xl border border-dashed border-apex-border bg-white p-8 text-center text-sm text-apex-body">
+                    No workout plans yet. Pick a template above or create one manually.
+                  </div>
+                ) : (
+                  workouts.map((plan, i) => {
+                    const planImage = getWorkoutImageForPlan(plan.title, plan.category);
+                    return (
+                      <motion.div
+                        key={plan.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.1 }}
+                        className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white transition-all hover:border-blue-600/30"
+                      >
+                        {planImage ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const catalogItem = findWorkoutCatalogItem(plan.category) ?? findWorkoutCatalogItem(plan.title);
+                              if (catalogItem) setViewingWorkout(catalogItem);
+                            }}
+                            className="click-effect relative block w-full overflow-hidden"
+                            aria-label={`View ${plan.title} workout image`}
+                          >
+                            <WorkoutPosterImage src={planImage} alt={plan.title} variant="thumb" />
+                            <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent px-4 pb-3 pt-12">
+                              <span className="rounded-pill bg-white/95 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-blue-600">
+                                {plan.level}
+                              </span>
+                              <h3 className="mt-1 text-xl font-bold text-white">{plan.title}</h3>
+                            </div>
+                          </button>
+                        ) : (
+                          <div className="border-b border-slate-100 p-6 pb-4">
+                            <div className="mb-4 flex justify-between items-start gap-2">
+                              <div className="rounded-2xl bg-blue-600/10 p-3">
+                                <Dumbbell className="h-6 w-6 text-blue-600" />
+                              </div>
+                              <span className="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                                {plan.level}
+                              </span>
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 transition-colors group-hover:text-blue-500">{plan.title}</h3>
+                          </div>
+                        )}
+                        <div className="p-6 pt-4">
+                          <p className="text-sm text-gray-400">{plan.category}</p>
+                          <p className="mt-2 text-xs uppercase tracking-wide text-gray-500">Scope: {plan.apply_to || 'all'}</p>
+                          <div className="mt-6 flex items-center justify-between">
+                            <div className="text-sm font-bold text-gray-300">{plan.user_count} Members</div>
+                            <div className="flex gap-1">
+                              <button onClick={() => startEditWorkout(plan)} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-slate-100 hover:text-blue-500"><Edit className="h-4 w-4" /></button>
+                              <button onClick={() => handleDuplicate(plan.id)} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-slate-100 hover:text-blue-500"><Copy className="h-4 w-4" /></button>
+                              <button onClick={() => handleToggleStatus(plan.id)} className="rounded-lg border border-slate-200 px-2 text-[10px] text-gray-300 hover:text-slate-900">{plan.is_active ? 'Disable' : 'Enable'}</button>
+                              <button onClick={() => handleDeleteWorkout(plan.id)} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-slate-100 hover:text-blue-500"><Trash2 className="h-4 w-4" /></button>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })
+                )}
+              </AnimatePresence>
+            </div>
+          </section>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <AnimatePresence mode="wait">
-            {activeTab === 'workout' ? (
-              workouts.map((plan, i) => (
-                <motion.div
-                  key={plan.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  className="bg-white border border-slate-200 rounded-3xl p-6 hover:border-blue-600/30 transition-all group relative overflow-hidden"
-                >
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/5 blur-[40px] rounded-full -mr-16 -mt-16" />
-                  <div className="flex justify-between items-start mb-4 gap-2">
-                    <div className="p-3 bg-blue-600/10 rounded-2xl">
-                      <Dumbbell className="w-6 h-6 text-blue-600" />
-                    </div>
-                    <div className="flex flex-col items-end gap-1">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 bg-slate-100 px-3 py-1 rounded-full">{plan.level}</span>
-                      <span className={`text-[10px] px-2 py-1 rounded-full ${plan.is_active ? 'bg-emerald-500/10 text-emerald-300' : 'bg-gray-500/20 text-gray-300'}`}>{plan.is_active ? 'Active' : 'Inactive'}</span>
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-500 transition-colors">{plan.title}</h3>
-                  <p className="text-gray-400 text-sm mt-1">{plan.category}</p>
-                  <p className="text-gray-500 text-xs mt-2 uppercase tracking-wide">Scope: {plan.apply_to || 'all'}</p>
-                  <div className="mt-6 flex items-center justify-between">
-                    <div className="text-gray-300 text-sm font-bold">{plan.user_count} Members</div>
-                    <div className="flex gap-1">
-                      <button onClick={() => startEditWorkout(plan)} className="p-2 hover:bg-slate-100 rounded-lg text-gray-400 hover:text-blue-500 transition-colors"><Edit className="w-4 h-4" /></button>
-                      <button onClick={() => handleDuplicate(plan.id)} className="p-2 hover:bg-slate-100 rounded-lg text-gray-400 hover:text-blue-500 transition-colors"><Copy className="w-4 h-4" /></button>
-                      <button onClick={() => handleToggleStatus(plan.id)} className="px-2 text-[10px] rounded-lg border border-slate-200 text-gray-300 hover:text-slate-900">{plan.is_active ? 'Disable' : 'Enable'}</button>
-                      <button onClick={() => handleDeleteWorkout(plan.id)} className="p-2 hover:bg-slate-100 rounded-lg text-gray-400 hover:text-blue-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))
-            ) : (
-              diets.map((plan, i) => (
+            {diets.map((plan, i) => (
                 <motion.div
                   key={plan.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -746,8 +833,7 @@ export default function DietWorkoutManager() {
                     </div>
                   </div>
                 </motion.div>
-              ))
-            )}
+              ))}
           </AnimatePresence>
         </div>
       )}

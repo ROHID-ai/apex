@@ -37,9 +37,13 @@ export default {
         btn: '0 4px 14px rgba(45, 62, 255, 0.28)',
         'btn-hover': '0 8px 24px rgba(45, 62, 255, 0.35)',
       },
+      transitionTimingFunction: {
+        smooth: 'cubic-bezier(0.16, 1, 0.3, 1)',
+      },
       animation: {
-        'fade-in': 'fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards',
-        'fade-in-up': 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'fade-in': 'fadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'fade-in-up': 'fadeInUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'fade-in-scale': 'fadeInScale 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards',
         'float-slow': 'floatSlow 8s ease-in-out infinite',
         'float-slower': 'floatSlow 12s ease-in-out infinite reverse',
       },
@@ -49,8 +53,12 @@ export default {
           '100%': { opacity: '1' },
         },
         fadeInUp: {
-          '0%': { opacity: '0', transform: 'translateY(12px)' },
+          '0%': { opacity: '0', transform: 'translateY(14px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        fadeInScale: {
+          '0%': { opacity: '0', transform: 'scale(0.97)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
         },
         floatSlow: {
           '0%, 100%': { transform: 'translateY(0) scale(1)' },

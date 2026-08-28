@@ -123,8 +123,8 @@ function App() {
   useEffect(() => {
     const targets = Array.from(
       document.querySelectorAll<HTMLElement>(
-        'main .rounded-3xl, main .rounded-2xl, main .glass-card, main .group, main section'
-      )
+        'main .apex-card, main .rounded-3xl, main .rounded-2xl, main .glass-card, main .group, main section',
+      ),
     );
 
     if (!targets.length) {

@@ -7,6 +7,19 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 
   body {
@@ -14,10 +27,20 @@
     background-image:
       radial-gradient(circle at 0% 0%, rgba(45, 62, 255, 0.06), transparent 40%),
       radial-gradient(circle at 100% 20%, rgba(45, 62, 255, 0.04), transparent 35%);
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply text-apex-heading;
+  }
+
+  button,
+  a,
+  [role='button'],
+  input,
+  select,
+  textarea {
+    @apply transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-200 ease-smooth;
   }
 
   ::selection {
@@ -68,7 +91,39 @@
   }
 
   .click-effect {
-    @apply transition-all duration-200 ease-out active:scale-[0.98] active:opacity-90;
+    @apply transition-all duration-200 ease-smooth active:scale-[0.98] active:opacity-90;
+  }
+
+  .smooth-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  .smooth-scroll::-webkit-scrollbar-thumb {
+    @apply transition-colors duration-300;
+  }
+
+  [data-reveal='pending'] {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  [data-reveal='visible'] {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal='pending'] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
   }
 
   .pro-button {
@@ -90,5 +145,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply rounded-full bg-slate-300 hover:bg-apex-primary/40;
+  @apply rounded-full bg-slate-300 transition-colors duration-300 hover:bg-apex-primary/40;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
 }

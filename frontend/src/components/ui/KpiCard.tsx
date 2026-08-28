@@ -17,7 +17,7 @@ export default function KpiCard({ title, value, change, isPositive = true, icon:
   return (
     <div className={cn('apex-card-hover group relative p-5', className)}>
       <div className="flex items-start justify-between gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-btn bg-apex-primary-light text-apex-primary transition-transform group-hover:scale-105">
+        <div className="flex h-11 w-11 items-center justify-center rounded-btn bg-apex-primary-light text-apex-primary transition-transform duration-300 ease-smooth group-hover:scale-105">
           <Icon className="h-5 w-5" />
         </div>
         {change && (
